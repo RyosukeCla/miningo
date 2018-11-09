@@ -1,6 +1,6 @@
 {
   "name": "miningo",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Tiny embedding document-oriented database written in typescript.",
   "main": "index.js",
   "scripts": {

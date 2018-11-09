@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "outDir": "./tmp/",
+    "noImplicitAny": true,
+    "sourceMap": false,
+    "stripInternal": true,
+    "declaration": true,
+    "declarationDir": "./dist/",
+    "module": "commonjs",
+    "target": "es6",
+    "baseUrl": ".",
+    "lib": ["esnext", "dom", "es2015"]
+  },
+  "files": [
+    "./src/index.ts",
+    "./src/adapters/JsonStorageAdapter.ts",
+    "./src/adapters/LocalStorageAdapter.ts",
+    "./src/adapters/InMemoryAdapter.ts",
+  ],
+  "include": [
+    "./src/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

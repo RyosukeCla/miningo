@@ -40,6 +40,10 @@ const db = miningo(new JsonStorageAdapter('./data'))
 import LocalStorageAdapter from 'miningo/adapters/LocalStorageAdapter'
 const namespace = 'test'
 const db = miningo(new LocalStorageAdapter(namespace))
+
+
+// commonjs
+const JsonStorageAdapter = require('miningo/adapters/JsonStorageAdapter').default
 ```
 
 ### create or get collection
@@ -77,7 +81,7 @@ const doc = await Human.find(you._id)
 
 ### find all documents
 ```ts
-const doc = await Human.findAll()
+const docs = await Human.findAll()
 ```
 
 ### find documents by ids
@@ -87,7 +91,7 @@ const docs = await Human.findMany([you._id, me._id])
 
 ### find documents by very simple query (not support operators such as $or, $in ...)
 ```ts
-const you = await Human.findBy({ name: 'you' })
+const [you] = await Human.findBy({ name: 'you' })
 ```
 
 ### update document

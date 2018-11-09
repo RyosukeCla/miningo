@@ -40,7 +40,7 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
       this.collections[name] = col
 
       await this.doJob(name, async () => {
-        fs.writeFileSync(col.path, '{}')
+        if (!fs.existsSync(col.path)) fs.writeFileSync(col.path, '{}')
       })
     }
 

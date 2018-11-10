@@ -20,7 +20,7 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
     }
   }
 
-  private async getOrCreateCollectionPath(name: string) {
+  private getOrCreateCollectionPath(name: string) {
     if (!this.collections[name]) {
       const colPath = path.resolve(this.dataPath, name)
 
@@ -33,13 +33,13 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
   }
 
   public async getJson(collection: string): Promise<any> {
-    const colPath = await this.getOrCreateCollectionPath(collection)
+    const colPath = this.getOrCreateCollectionPath(collection)
     const file = fs.readFileSync(colPath, 'utf8')
     return JSON.parse(file)
   }
 
   public async setItems(collection: string, items: (D & BaseDoc)[]) {
-    const colPath = await this.getOrCreateCollectionPath(collection)
+    const colPath = this.getOrCreateCollectionPath(collection)
     const file = fs.readFileSync(colPath, 'utf8')
     const json = JSON.parse(file)
     items.forEach((item) => {
@@ -50,7 +50,7 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
   }
 
   public async removeItems(collection: string, ids: string[]) {
-    const colPath = await this.getOrCreateCollectionPath(collection)
+    const colPath = this.getOrCreateCollectionPath(collection)
     const file = fs.readFileSync(colPath, 'utf8')
     const json = JSON.parse(file)
     const items: (D & BaseDoc)[] = []
@@ -64,7 +64,7 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
   }
 
   public async dropCollection(collection: string) {
-    const colPath = await this.getOrCreateCollectionPath(collection)
+    const colPath = this.getOrCreateCollectionPath(collection)
     fs.unlinkSync(colPath)
     delete this.collections[collection]
   }

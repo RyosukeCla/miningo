@@ -6,5 +6,4 @@ export default interface DatabaseAdapter<D = any> {
   getJson: (collection: string) => Promise<{ [k: string]: D & BaseDoc }>
   setItems: (collection: string, items: (D & BaseDoc)[]) => Promise<(D & BaseDoc)[]>
   removeItems: (collection: string, ids: string[]) => Promise<(D & BaseDoc)[]>
-
 }

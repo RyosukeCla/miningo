@@ -1,22 +1,14 @@
 import DatabaseAdapter from '../adapter';
 import { BaseDoc } from '../collection';
-interface JsonAdapterCollection {
-    path: string;
-    isLocalLocking: boolean;
-    queue: (() => Promise<any>)[];
-}
 export default class JsonAdapter<D> implements DatabaseAdapter<D> {
     collections: {
-        [name: string]: JsonAdapterCollection;
+        [name: string]: string;
     };
     private dataPath;
     constructor(dataPath: string);
-    private getOrCreateCollection;
-    private doJob;
+    private getOrCreateCollectionPath;
     getJson(collection: string): Promise<any>;
-    setItems(collection: string, items: (D & BaseDoc)[]): Promise<any>;
-    removeItems(collection: string, ids: string[]): Promise<any>;
-    dropCollection(name: string): Promise<void>;
-    private startJobLoop;
+    setItems(collection: string, items: (D & BaseDoc)[]): Promise<(D & BaseDoc)[]>;
+    removeItems(collection: string, ids: string[]): Promise<(D & BaseDoc)[]>;
+    dropCollection(collection: string): Promise<void>;
 }
-export {};

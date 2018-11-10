@@ -19,7 +19,7 @@ const main = async () => {
 
   // create todo
   const todo = await Todo.insert({
-    title: 'hello, world!',
+    title: 'hello, world! - ' + todos.length,
     desc: 'miningo!!'
   })
   console.log('created', todo)

@@ -14,4 +14,7 @@ module.exports = {
   },
   testEnvironment: "node",
   testRegex: "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+  collectCoverage: true,
+  coveragePathIgnorePatterns: ["/dist/"],
+  collectCoverageFrom: ["src/**"]
 }

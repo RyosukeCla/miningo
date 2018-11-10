@@ -1,4 +1,4 @@
-# Miningo
+# Miningo [![Build Status](https://travis-ci.org/RyosukeCla/miningo.svg?branch=master)](https://travis-ci.org/RyosukeCla/miningo)
 Tiny embedding document-oriented database written in typescript.
 
 - For playground / experimental / simple / application use.

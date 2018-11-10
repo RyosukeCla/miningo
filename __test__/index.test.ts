@@ -54,6 +54,17 @@ const testAdapter = (adapter: DatabaseAdapter) => () => {
     expect(me.age).toBe(fakeHuman.age)
   })
 
+  it('insert each', async () => {
+    const items = []
+    fakeHumans_20y.forEach((doc) => {
+      items.push(Human.insert(doc))
+    })
+
+    await Promise.all(items)
+    const size = await Human.size()
+    expect(size).toBe(fakeHumans_20y.length)
+  })
+
   it('insertMany', async () => {
     const docs = await Human.insertMany(fakeHumans_1000)
 

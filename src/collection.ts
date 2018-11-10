@@ -68,14 +68,17 @@ export default class Collection<D> {
 
   public async findBy(query: any): Promise<(D & BaseDoc)[]> {
     const json = await this.adapter.getJson(this.name)
-    const result = []
+    const result: (D & BaseDoc)[] = []
     for (let docKey in json) {
       const doc = json[docKey]
+      let match = true
       for (let key in query) {
-        if ((doc as any)[key] === query[key]) {
-          result.push(doc)
+        if ((doc as any)[key] !== query[key]) {
+          match = false
+          break
         }
       }
+      if (match) result.push(doc)
     }
     return result
   }

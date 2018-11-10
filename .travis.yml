@@ -3,6 +3,9 @@ node_js:
   - 6
   - 8
   - node
+script:
+  - npm run build
+  - npm run test
 branches:
   only:
     - master

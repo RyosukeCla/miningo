@@ -20,7 +20,7 @@ export default class Collection<D> {
   }
 
   private validate(doc: D | (D & BaseDoc)) {
-    this.validator.validate(doc, this.schema, { throwError: true })
+    if (this.schema) this.validator.validate(doc, this.schema, { throwError: true })
   }
 
   public async insert(doc: D | (D & BaseDoc)): Promise<D & BaseDoc> {

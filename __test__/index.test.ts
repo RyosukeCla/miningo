@@ -34,14 +34,15 @@ const schema = {
 
 const testAdapter = (adapter: DatabaseAdapter) => () => {
   const db = DatabaseFactory(adapter)
-  const Human = db.collection<Human>('human', schema)
+  const Human = db.collection<Human>('human')
 
   beforeEach(async () => {
     await db.drop('human')
   })
 
   it('schema', (done) => {
-    Human.insert({} as any).then(() => {
+    const HumanWithSchema = db.collection<Human>('human', schema)
+    HumanWithSchema.insert({} as any).then(() => {
       done.fail()
     }).catch(e => done())
   })

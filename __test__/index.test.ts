@@ -12,11 +12,11 @@ const fakeHuman = { name: 'RyosukeCla', age: 22 }
 const fakeHumans_1000 = []
 const fakeHumans_20y = []
 for (let i = 0; i < 1000; i++) {
-  const name = '' + Math.random()
+  const name = 'type-' + Math.trunc(Math.random() * 4)
   const age = Math.trunc(Math.random() * 10 + 20)
   const doc = { name, age }
   fakeHumans_1000.push(doc)
-  if (age === 25) fakeHumans_20y.push(doc)
+  if (age === 25 && name === 'type-0') fakeHumans_20y.push(doc)
 }
 
 const schema = {
@@ -90,7 +90,8 @@ const testAdapter = (adapter: DatabaseAdapter) => () => {
   it('findBy', async () => {
     await Human.insertMany(fakeHumans_1000)
     const founds = await Human.findBy({
-      age: 25
+      name: 'type-0',
+      age: 25,
     })
     expect(founds.length).toBe(fakeHumans_20y.length)
   })

@@ -22,7 +22,7 @@ export default class JsonAdapter<D> implements DatabaseAdapter<D> {
 
   private getOrCreateCollectionPath(name: string) {
     if (!this.collections[name]) {
-      const colPath = path.resolve(this.dataPath, name)
+      const colPath = path.resolve(this.dataPath, name + '.json')
 
       this.collections[name] = colPath
 

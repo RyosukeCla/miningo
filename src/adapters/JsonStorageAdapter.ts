@@ -4,7 +4,7 @@ import DatabaseAdapter from '../adapter'
 import { BaseDoc } from '../collection'
 import { deepCopy } from '../utils'
 
-export default class JsonAdapter<D> implements DatabaseAdapter<D> {
+export default class JsonStorageAdapter<D> implements DatabaseAdapter<D> {
    collections: {
     [name: string]: string
   }

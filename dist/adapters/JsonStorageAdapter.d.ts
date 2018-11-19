@@ -1,14 +1,15 @@
 import DatabaseAdapter from '../adapter';
 import { BaseDoc } from '../collection';
-export default class JsonAdapter<D> implements DatabaseAdapter<D> {
+export default class JsonStorageAdapter<D> implements DatabaseAdapter<D> {
     collections: {
         [name: string]: string;
     };
     private dataPath;
     constructor(dataPath: string);
     private getOrCreateCollectionPath;
-    getJson(collection: string): Promise<any>;
-    setItems(collection: string, items: (D & BaseDoc)[]): Promise<(D & BaseDoc)[]>;
-    removeItems(collection: string, ids: string[]): Promise<(D & BaseDoc)[]>;
+    remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void>;
+    update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc): Promise<void>;
+    append(name: string, docs: (D & BaseDoc)[]): Promise<void>;
+    read(name: string, search: (doc: D & BaseDoc) => boolean): Promise<void>;
     dropCollection(collection: string): Promise<void>;
 }

@@ -6,8 +6,9 @@ export default class LocalStorageAdapter<D> implements DatabaseAdapter<D> {
     constructor(namespace: string);
     private getOrCreateCollection;
     private getKey;
-    getJson(collection: string): Promise<any>;
-    setItems(collection: string, items: (D & BaseDoc)[]): Promise<(D & BaseDoc)[]>;
-    removeItems(collection: string, ids: string[]): Promise<(D & BaseDoc)[]>;
+    remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void>;
+    update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc): Promise<void>;
+    append(name: string, docs: (D & BaseDoc)[]): Promise<void>;
+    read(name: string, search: (doc: D & BaseDoc) => boolean): Promise<void>;
     dropCollection(name: string): Promise<void>;
 }

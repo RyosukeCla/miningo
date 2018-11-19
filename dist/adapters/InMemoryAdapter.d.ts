@@ -4,8 +4,9 @@ export default class InMemoryAdapter<D> implements DatabaseAdapter<D> {
     private collections;
     constructor();
     private getOrCreateCollection;
-    getJson(collection: string): Promise<any>;
-    setItems(collection: string, items: (D & BaseDoc)[]): Promise<(D & BaseDoc)[]>;
-    removeItems(collection: string, ids: string[]): Promise<(D & BaseDoc)[]>;
+    remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void>;
+    update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc): Promise<void>;
+    append(name: string, docs: (D & BaseDoc)[]): Promise<void>;
+    read(name: string, search: (doc: D & BaseDoc) => boolean): Promise<void>;
     dropCollection(name: string): Promise<void>;
 }

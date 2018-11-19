@@ -7,7 +7,8 @@ module.exports = {
     index: './src/index.ts',
     'adapters/JsonStorageAdapter': './src/adapters/JsonStorageAdapter.ts',
     'adapters/InMemoryAdapter': './src/adapters/InMemoryAdapter.ts',
-    'adapters/LocalStorageAdapter': './src/adapters/LocalStorageAdapter.ts'
+    'adapters/LocalStorageAdapter': './src/adapters/LocalStorageAdapter.ts',
+    'adapters/FastStorageAdapter': './src/adapters/FastStorageAdapter.ts'
   },
   externals: [nodeExternals({
     whitelist: ['jsonschema']

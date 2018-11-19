@@ -32,9 +32,13 @@ const db = miningo()
 import InMemoryAdapter from 'miningo/adapters/InMemoryAdapter'
 const db = miningo(new InMemoryAdapter())
 
-// persistent json storage. save json to dataDir.
+// persistent json storage. save json to dataDir. very low performance.
 import JsonStorageAdapter from 'miningo/adapters/JsonStorageAdapter'
 const db = miningo(new JsonStorageAdapter('./data'))
+
+// persistent storage faster than json storage.
+import FastStorageAdapter from 'miningo/adapters/FastStorageAdapter'
+const db = miningo(new FastStorageAdapter('./data'))
 
 // persistent local storage for browser.
 import LocalStorageAdapter from 'miningo/adapters/LocalStorageAdapter'

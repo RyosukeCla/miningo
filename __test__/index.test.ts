@@ -2,6 +2,7 @@ import DatabaseFactory from '../src/index'
 import DatabaseAdapter from '../src/adapter'
 import InMemoryAdapter from '../src/adapters/InMemoryAdapter'
 import JsonStorageAdapter from '../src/adapters/JsonStorageAdapter'
+import FastStorageAdapter from '../src/adapters/FastStorageAdapter'
 
 interface Human {
   name: string,
@@ -138,3 +139,4 @@ const testAdapter = (adapter: DatabaseAdapter) => () => {
 
 describe('in memory', testAdapter(new InMemoryAdapter()))
 describe('json storage', testAdapter(new JsonStorageAdapter('./data')))
+describe('fast storage', testAdapter(new FastStorageAdapter('./data')))

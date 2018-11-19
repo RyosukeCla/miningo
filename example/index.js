@@ -1,10 +1,10 @@
 const miningo = require('miningo').default
-const JsonStorageAdapter = require('miningo/adapters/JsonStorageAdapter').default
+const FastStorageAdapter = require('miningo/adapters/FastStorageAdapter').default
 
 const main = async () => {
   // persistent storage
   const dataDir = './data'
-  const db = miningo(new JsonStorageAdapter(dataDir))
+  const db = miningo(new FastStorageAdapter(dataDir))
 
   // Todo Collection with validator
   const todoSchema = {

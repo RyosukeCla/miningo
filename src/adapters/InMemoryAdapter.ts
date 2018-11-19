@@ -1,41 +1,52 @@
 import DatabaseAdapter from '../adapter'
 import { BaseDoc } from '../collection'
-import { deepCopy } from '../utils'
 
 export default class InMemoryAdapter<D> implements DatabaseAdapter<D> {
-  private collections: any
+  private collections: {
+    [k: string]: (D & BaseDoc)[]
+  }
 
   constructor() {
     this.collections = {}
   }
 
   private getOrCreateCollection(name: string) {
-    if (!this.collections[name]) this.collections[name] = {}
+    if (!this.collections[name]) this.collections[name] = []
     return this.collections[name]
   }
 
-  async getJson(collection: string) {
-    const col = this.getOrCreateCollection(collection)
-    return deepCopy(col)
+  async remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+
+    this.collections[name] = col.filter(doc => !condition(doc))
   }
 
-  async setItems(collection: string, items: (D & BaseDoc)[]) {
-    const col = this.getOrCreateCollection(collection)
-    items.forEach((item) => {
-      col[item._id] = item
+  async update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+
+    col.forEach((item: any, index) => {
+      const doc = edit(item)
+      if (doc) col[index] = doc
     })
-    return deepCopy(items)
   }
 
-  async removeItems(collection: string, ids: string[]) {
-    const col = this.getOrCreateCollection(collection)
-    const items: (D & BaseDoc)[] = []
-    ids.forEach((id) => {
-      const item = col[id]
-      if (item) items.push(deepCopy(item))
-      delete col[id]
+  async append(name: string, docs: (D & BaseDoc)[]): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+
+    docs.forEach((doc) => {
+      col.push(doc)
     })
-    return items
+  }
+
+  async read(name: string, search: (doc: D & BaseDoc) => boolean) {
+    const col = this.getOrCreateCollection(name)
+    let isContinue = true
+
+    for (let doc of col) {
+      if (!isContinue) break
+
+      isContinue = search(doc)
+    }
   }
 
   async dropCollection(name: string) {

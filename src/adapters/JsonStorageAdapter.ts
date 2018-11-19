@@ -26,41 +26,51 @@ export default class JsonStorageAdapter<D> implements DatabaseAdapter<D> {
 
       this.collections[name] = colPath
 
-      if (!fs.existsSync(colPath)) fs.writeFileSync(colPath, '{}')
+      if (!fs.existsSync(colPath)) fs.writeFileSync(colPath, '[]')
     }
 
     return this.collections[name]
   }
 
-  public async getJson(collection: string): Promise<any> {
-    const colPath = this.getOrCreateCollectionPath(collection)
+  public async remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void> {
+    const colPath = this.getOrCreateCollectionPath(name)
     const file = fs.readFileSync(colPath, 'utf8')
-    return JSON.parse(file)
+    const col: (D & BaseDoc)[] = JSON.parse(file)
+    const newCol = col.filter(doc => !condition(doc))
+    fs.writeFileSync(colPath, JSON.stringify(newCol))
   }
 
-  public async setItems(collection: string, items: (D & BaseDoc)[]) {
-    const colPath = this.getOrCreateCollectionPath(collection)
+  public async update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc) {
+    const colPath = this.getOrCreateCollectionPath(name)
     const file = fs.readFileSync(colPath, 'utf8')
-    const json = JSON.parse(file)
-    items.forEach((item) => {
-      json[item._id] = item
+    const col: (D & BaseDoc)[] = JSON.parse(file)
+    col.forEach((item, index) => {
+      const doc = edit(item)
+      if (doc) col[index] = doc
     })
-    fs.writeFileSync(colPath, JSON.stringify(json))
-    return items
+    fs.writeFileSync(colPath, JSON.stringify(col))
   }
 
-  public async removeItems(collection: string, ids: string[]) {
-    const colPath = this.getOrCreateCollectionPath(collection)
+  public async append(name: string, docs: (D & BaseDoc)[]) {
+    const colPath = this.getOrCreateCollectionPath(name)
     const file = fs.readFileSync(colPath, 'utf8')
-    const json = JSON.parse(file)
-    const items: (D & BaseDoc)[] = []
-    ids.forEach((id) => {
-      const item = json[id]
-      if (item) items.push(deepCopy(item))
-      delete json[id]
+    const col: (D & BaseDoc)[] = JSON.parse(file)
+    docs.forEach((doc) => {
+      col.push(doc)
     })
-    fs.writeFileSync(colPath, JSON.stringify(json))
-    return items
+    fs.writeFileSync(colPath, JSON.stringify(col))
+  }
+
+  public async read(name: string, search: (doc: D & BaseDoc) => boolean) {
+    const colPath = this.getOrCreateCollectionPath(name)
+    const file = fs.readFileSync(colPath, 'utf8')
+    const col: (D & BaseDoc)[] = JSON.parse(file)
+
+    let isContinue = true
+    for (let doc of col) {
+      if (!isContinue) break
+      isContinue = search(doc)
+    }
   }
 
   public async dropCollection(collection: string) {

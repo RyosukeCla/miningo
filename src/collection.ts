@@ -27,7 +27,8 @@ export default class Collection<D> {
     this.validate(doc)
     const _id = genUniqueId(this.name)
     const newItem = Object.assign(deepCopy(doc), { _id })
-    return (await this.adapter.setItems(this.name, [newItem]))[0]
+    await this.adapter.append(this.name, [newItem])
+    return newItem
   }
 
   public async insertMany(docs: (D | (D & BaseDoc))[]): Promise<(D & BaseDoc)[]> {
@@ -39,38 +40,48 @@ export default class Collection<D> {
       const newItem = Object.assign(deepCopy(doc), { _id })
       items.push(newItem)
     }
-    return await this.adapter.setItems(this.name, items)
+    await this.adapter.append(this.name, items)
+    return items
   }
 
   public async find(id: string): Promise<(D & BaseDoc) | undefined> {
-    const json = await this.adapter.getJson(this.name)
-    return json[id]
+    let found = undefined
+    await this.adapter.read(this.name, (doc) => {
+      if (doc._id === id) {
+        found = doc
+        return false
+      }
+      return true
+    })
+    return found
   }
 
   public async findMany(ids: string[]): Promise<(D & BaseDoc)[]> {
-    const json = await this.adapter.getJson(this.name)
-    const result: (D & BaseDoc)[] = []
-    ids.forEach((id) => {
-      const doc = json[id]
-      if (doc) result.push(doc)
+    const docs: (D & BaseDoc)[] = []
+    const searchIds = deepCopy(ids)
+    await this.adapter.read(this.name, (doc) => {
+      const searchedIndex = searchIds.findIndex(id => doc._id === id)
+      if (searchedIndex > -1) {
+        docs.push(doc)
+        searchIds.splice(searchedIndex, 1)
+      }
+      return true
     })
-    return result
+    return docs
   }
 
   public async findAll(): Promise<(D & BaseDoc)[]> {
-    const json = await this.adapter.getJson(this.name)
-    const result = []
-    for (let docKey in json) {
-      result.push(json[docKey])
-    }
-    return result
+    const docs: (D & BaseDoc)[] = []
+    await this.adapter.read(this.name, (doc) => {
+      docs.push(doc)
+      return true
+    })
+    return docs
   }
 
   public async findBy(query: any): Promise<(D & BaseDoc)[]> {
-    const json = await this.adapter.getJson(this.name)
-    const result: (D & BaseDoc)[] = []
-    for (let docKey in json) {
-      const doc = json[docKey]
+    const docs: (D & BaseDoc)[] = []
+    await this.adapter.read(this.name, (doc) => {
       let match = true
       for (let key in query) {
         if ((doc as any)[key] !== query[key]) {
@@ -78,9 +89,10 @@ export default class Collection<D> {
           break
         }
       }
-      if (match) result.push(doc)
-    }
-    return result
+      if (match) docs.push(doc)
+      return true
+    })
+    return docs
   }
 
   public async update(id: string, doc: D | (D & BaseDoc)): Promise<(D & BaseDoc) | undefined> {
@@ -90,21 +102,50 @@ export default class Collection<D> {
     if (!oldDoc) return undefined
     const newItem = Object.assign(deepCopy(doc), { _id: oldDoc._id })
 
-    const updated = await this.adapter.setItems(this.name, [newItem])
-    return updated.length > 0 ? updated[0] : undefined
+    let isUpdated = false
+    await this.adapter.update(this.name, (_doc) => {
+      if (!isUpdated && _doc._id === newItem._id) {
+        isUpdated = true
+        return newItem
+      }
+    })
+
+    return isUpdated ? newItem : undefined
   }
 
   public async remove(id: string): Promise<(D & BaseDoc) | undefined> {
-    const removed = await this.adapter.removeItems(this.name, [id])
-    return removed.length > 0 ? removed[0] : undefined
+    let removed = undefined
+    await this.adapter.remove(this.name, (doc) => {
+      if (doc._id === id) {
+        removed = doc
+        return true
+      }
+      return false
+    })
+    return removed
   }
 
   public async removeMany(ids: string[]): Promise<(D & BaseDoc)[]> {
-    return await this.adapter.removeItems(this.name, ids)
+    const docs: (D & BaseDoc)[] = []
+    const searchIds = deepCopy(ids)
+    await this.adapter.remove(this.name, (doc) => {
+      const searchedIndex = searchIds.findIndex(id => doc._id === id)
+      if (searchedIndex > -1) {
+        docs.push(doc)
+        searchIds.splice(searchedIndex, 1)
+        return true
+      }
+      return false
+    })
+    return docs
   }
 
   public async size(): Promise<number> {
-    const json = await this.adapter.getJson(this.name)
-    return Object.keys(json).length
+    let count = 0
+    await this.adapter.read(this.name, () => {
+      count++
+      return true
+    }, { raw: true })
+    return count
   }
 }

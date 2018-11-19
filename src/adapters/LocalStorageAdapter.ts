@@ -1,9 +1,11 @@
 import DatabaseAdapter from '../adapter'
 import { BaseDoc } from '../collection'
-import { deepCopy } from '../utils'
 
 export default class LocalStorageAdapter<D> implements DatabaseAdapter<D> {
-  private collections: any
+  private collections: {
+    [k: string]: (D & BaseDoc)[]
+  }
+
   private namespace: string
 
   constructor(namespace: string) {
@@ -14,43 +16,54 @@ export default class LocalStorageAdapter<D> implements DatabaseAdapter<D> {
   private getOrCreateCollection(name: string) {
     if (!this.collections[name]) {
       const col = localStorage.getItem(this.getKey(name))
-      this.collections[name] = col || {}
+      this.collections[name] = col ? JSON.parse(col) : []
     }
     return this.collections[name]
   }
 
   private getKey(name: string) {
-    return this.namespace + '/' + name
+    return this.namespace + name
   }
 
-  async getJson(collection: string) {
-    const col = this.getOrCreateCollection(collection)
-    return deepCopy(col)
+  async remove(name: string, condition: (doc: D & BaseDoc) => boolean): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+    const newCol = col.filter(doc => !condition(doc))
+    this.collections[name] = newCol
+    localStorage.setItem(this.getKey(name), JSON.stringify(newCol))
   }
 
-  async setItems(collection: string, items: (D & BaseDoc)[]) {
-    const col = this.getOrCreateCollection(collection)
-    items.forEach((item) => {
-      col[item._id] = item
+  async update(name: string, edit: (doc: D & BaseDoc) => D & BaseDoc): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+
+    col.forEach((item: any, index) => {
+      const doc = edit(item)
+      if (doc) col[index] = doc
     })
-    localStorage.setItem(this.getKey(collection), col)
-    return deepCopy(items)
+    localStorage.setItem(this.getKey(name), JSON.stringify(col))
   }
 
-  async removeItems(collection: string, ids: string[]) {
-    const col = this.getOrCreateCollection(collection)
-    const items: (D & BaseDoc)[] = []
-    ids.forEach((id) => {
-      const item = col[id]
-      if (item) items.push(deepCopy(item))
-      delete col[id]
+  async append(name: string, docs: (D & BaseDoc)[]): Promise<void> {
+    const col = this.getOrCreateCollection(name)
+
+    docs.forEach((doc) => {
+      col.push(doc)
     })
-    localStorage.setItem(this.getKey(collection), col)
-    return items
+    localStorage.setItem(this.getKey(name), JSON.stringify(col))
+  }
+
+  async read(name: string, search: (doc: D & BaseDoc) => boolean) {
+    const col = this.getOrCreateCollection(name)
+    let isContinue = true
+
+    for (let doc of col) {
+      if (!isContinue) return
+
+      isContinue = search(doc)
+    }
   }
 
   async dropCollection(name: string) {
-    localStorage.removeItem(this.getKey(name))
     delete this.collections[name]
+    localStorage.setItem(this.getKey(name), '[]')
   }
 }
